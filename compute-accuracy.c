@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
                 TCN = 1;
             }
             if (QID != 0) {
-                printf("ACCUTACY TOP1: %.2f %% (%d / %d)\n", CCN / (float) TCN * 100, CCN, TCN);
+                printf("ACCURACY TOP1: %.2f %% (%d / %d)\n", CCN / (float) TCN * 100, CCN, TCN);
                 printf("Total accuracy: %.2f %%  Semantic accuracy: %.2f %%   Syntactic accuracy: %.2f %%",
                        CACN / (float) TACN * 100, SEAC / (float) SECN * 100, SYAC / (float) SYCN * 100);
             }
