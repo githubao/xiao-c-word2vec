@@ -1,4 +1,4 @@
-// Created by BaoQiang at 2016/11/9 20:26
+// Created by BaoQiang at 2016/11/9 21:10
 
 #include <stdio.h>
 #include <string.h>
@@ -12,14 +12,14 @@ const long long max_size = 50;
 int main(int argc, char **argv) {
     FILE *f;
     char st1[max_size];
-    char *bestw[N];
+    char bestw[N][max_size];
     char file_name[max_size], st[100][max_size];
     float dist, len, bestd[N], vec[max_size];
     long long words, size, a, b, c, d, cn, bi[100];
     float *M;
     char *vocab;
     if (argc < 2) {
-        printf("Usage: ./distance <FILE>\n");
+        printf("Usage: ./word-analogy <FILE>\n");
         printf("where FILE contains word projections in the BINARY FORMAT\n");
         return 0;
     }
@@ -32,9 +32,6 @@ int main(int argc, char **argv) {
     fscanf(f, "%lld", &words);
     fscanf(f, "%lld", &size);
     vocab = (char *) malloc(words * max_w * sizeof(char));
-    for (a = 0; a < N; a++) {
-        bestw[a] = (char *) malloc(max_size * sizeof(char));
-    }
     M = (float *) malloc(words * size * sizeof(float));
     if (M == NULL) {
         printf("Cannot allocate memory: %lld MB %lld  %lld\n", words * size * sizeof(float) / 1048576, words, size);
@@ -72,7 +69,7 @@ int main(int argc, char **argv) {
         for (a = 0; a < N; a++) {
             bestw[a][0] = 0;
         }
-        printf("Enter word or sentence (EXIT to break): ");
+        printf("Enter three words (EXIT to break): ");
         a = 0;
         while (1) {
             st1[a] = fgetc(stdin);
@@ -103,6 +100,12 @@ int main(int argc, char **argv) {
             }
         }
         cn++;
+        if (cn < 3) {
+            printf("Only %lld words were entered.. three words are needed at the input to perform the calculation\n",
+                   cn);
+            continue;
+        }
+
         for (a = 0; a < cn; a++) {
             for (b = 0; b < words; b++) {
                 if (!strcmp(&vocab[b * max_w], st[a])) {
@@ -110,30 +113,23 @@ int main(int argc, char **argv) {
                 }
             }
             if (b == words) {
-                b = -1;
+                b = 0;
             }
             bi[a] = b;
             printf("\nWord: %s  Position in vocabulary: %lld\n", st[a], bi[a]);
-            if (b == -1) {
+            if (b == 0) {
                 printf("Out of dictionary word!\n");
                 break;
             }
         }
-        if (b == -1) {
+        if (b == 0) {
             continue;
         }
-        printf("\n                                   Word        Consine distance\n-------------------------------------------------------------\n");
+        printf("\n                                   Word         Distance\n-------------------------------------------------------------\n");
         for (a = 0; a < size; a++) {
-            vec[a] = 0;
+            vec[a] = M[a + bi[1] * size] - M[a + bi[0] * size] + M[a + bi[2] * size];
         }
-        for (b = 0; b < cn; b++) {
-            if (bi[b] == -1) {
-                continue;
-            }
-            for (a = 0; a < size; a++) {
-                vec[a] += M[a + bi[b] * size];
-            }
-        }
+
         len = 0;
         for (a = 0; a < size; a++) {
             len += vec[a] * vec[a];
@@ -143,12 +139,21 @@ int main(int argc, char **argv) {
             vec[a] /= len;
         }
         for (a = 0; a < N; a++) {
-            bestd[a] = -1;
+            bestd[a] = 0;
         }
         for (a = 0; a < N; a++) {
             bestw[a][0] = 0;
         }
         for (c = 0; c < words; c++) {
+            if (c == bi[0]) {
+                continue;
+            }
+            if (c == bi[1]) {
+                continue;
+            }
+            if (c == bi[2]) {
+                continue;
+            }
             a = 0;
             for (b = 0; b < cn; b++) {
                 if (bi[b] == c) {
