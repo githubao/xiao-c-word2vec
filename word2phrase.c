@@ -131,7 +131,7 @@ int SortVocab() {
             vocab_hash[hash] = a;
         }
     }
-    vocab = (struct vocab_word *) realloc(vocab, vocab_size * sizeof(struct vocab_size));
+    vocab = (struct vocab_word *) realloc(vocab, vocab_size * sizeof(struct vocab_word));
 }
 
 void ReduceVocab() {
@@ -223,7 +223,73 @@ void LearnVocabFromTrainFile() {
     fclose(fin);
 }
 
-void TranModel() { }
+void TrainModel() {
+    long long pa = 0, pb = 0, pab = 0, oov, i, li = -1, cn = 0;
+    char word[MAX_STRING], last_word[MAX_STRING], bigram_word[MAX_STRING * 2];
+    real score;
+    FILE *fo, *fin;
+    printf("Starting training using file %s\n", train_file);
+    LearnVocabFromTrainFile();
+    fin = fopen(train_file, "rb");
+    fo = fopen(output_file, "wb");
+    word[0] = 0;
+    while (1) {
+        strcpy(last_word, word);
+        ReadWord(word, fin);
+        if (feof(fin)) {
+            break;
+        }
+        if (!strcmp(word, "</s>")) {
+            fprintf(fo, "\n");
+            continue;
+        }
+        cn++;
+        if ((debug_mode > 1) && (cn % 100000 == 0)) {
+            printf("Words written: %lldK%c", cn / 1000, 13);
+            fflush(stdout);
+        }
+        oov = 0;
+        i = SearchVocab(word);
+        if (i == -1) {
+            oov = 1;
+        } else {
+            pb = vocab[i].cn;
+        }
+        if (li == -1) {
+            oov = 1;
+        }
+        li = i;
+        sprintf(bigram_word, "%s_%s", last_word, word);
+        bigram_word[MAX_STRING - 1] = 0;
+        i = SearchVocab(bigram_word);
+        if (i == -1) {
+            oov = 1;
+        } else {
+            pab = vocab[i].cn;
+        }
+        if (pa < min_count) {
+            oov = 1;
+        }
+        if (pb < min_count) {
+            oov = 1;
+        }
+        if (oov) {
+            score = 0;
+        } else {
+            score = (pab - min_count) / (real) pa / (real) pb * (real) train_words;
+        }
+        if (score > threshold) {
+            fprintf(fo, "_%s", word);
+            pb = 0;
+        } else {
+            fprintf(fo, " %s", word);
+        }
+        pa = pb;
+    }
+    fclose(fo);
+    fclose(fin);
+
+}
 
 int ArgPos(char *str, int argc, char **argv) {
     int a;
@@ -239,7 +305,7 @@ int ArgPos(char *str, int argc, char **argv) {
     return -1;
 }
 
-int main(int argc, char **argv) {
+int main2(int argc, char **argv) {
     int i;
     if (argc == 1) {
         printf("WORD2PHRASE tool v0.1a\n\n");
@@ -266,7 +332,7 @@ int main(int argc, char **argv) {
     if ((i = ArgPos((char *) "-threshold", argc, argv)) > 0) threshold = atof(argv[i + 1]);
     vocab = (struct vocab_word *) calloc(vocab_max_size, sizeof(struct vocab_word));
     vocab_hash = (int *) calloc(vocab_max_size, sizeof(int));
-    TranModel();
+    TrainModel();
     return 0;
 }
 

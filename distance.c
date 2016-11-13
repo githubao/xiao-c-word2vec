@@ -7,9 +7,9 @@
 
 const long long max_size = 2000;
 const long long N = 40;
-const long long max_size = 50;
+const long long max_w = 50;
 
-int main(int argc, char **argv) {
+int main3(int argc, char **argv) {
     FILE *f;
     char st1[max_size];
     char *bestw[N];
