@@ -2,6 +2,8 @@
 // Created by BaoQiang on 2016/11/8.
 //
 
+//#pragma comment(lib, "pthreadVC2.lib")
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,8 +14,8 @@
 #define MAX_STRING 100
 #define EXP_TABLE_SIZE 1000
 #define MAX_EXP 6
-#define MAX_SENTENCE_LENGH 1000
-#define MAX_CODE_LENGH 40
+#define MAX_SENTENCE_LENGTH 1000
+#define MAX_CODE_LENGTH 40
 
 const int vocab_hash_size = 30000000;
 
@@ -175,8 +177,8 @@ void SortVocab() {
     vocab = (struct vocab_word *) realloc(vocab, (vocab_size + 1) * sizeof(struct vocab_word));
 //    binary tree construction
     for (a = 0; a < vocab_size; ++a) {
-        vocab[a].code = (char *) calloc(MAX_CODE_LENGH, sizeof(char));
-        vocab[a].point = (int *) calloc(MAX_CODE_LENGH, sizeof(int));
+        vocab[a].code = (char *) calloc(MAX_CODE_LENGTH, sizeof(char));
+        vocab[a].point = (int *) calloc(MAX_CODE_LENGTH, sizeof(int));
     }
 }
 
@@ -210,8 +212,8 @@ void ReduceVocab() {
 // create binary huffman tree using the word counts
 // frequent words will have short uniques binary codes
 void CreateBinaryTree() {
-    long long a, b, i, min1i, min2i, pos1, pos2, point[MAX_CODE_LENGH];
-    char code[MAX_CODE_LENGH];
+    long long a, b, i, min1i, min2i, pos1, pos2, point[MAX_CODE_LENGTH];
+    char code[MAX_CODE_LENGTH];
     long long *count = (long long *) calloc(vocab_size * 2 + 1, sizeof(long long));
     long long *binary = (long long *) calloc(vocab_size * 2 + 1, sizeof(long long));
     long long *parent_node = (long long *) calloc(vocab_size * 2 + 1, sizeof(long long));
@@ -417,7 +419,7 @@ void InitNet() {
 
 void *TrainModelThread(void *id) {
     long long a, b, d, cw, word, last_word, sentence_length = 0, sentence_position = 0;
-    long long word_count = 0, last_word_count = 0, sen[MAX_SENTENCE_LENGH + 1];
+    long long word_count = 0, last_word_count = 0, sen[MAX_SENTENCE_LENGTH + 1];
     long long l1, l2, c, target, label, local_iter = iter;
     unsigned long long next_random = (long long) id;
     real f, g;
@@ -466,7 +468,7 @@ void *TrainModelThread(void *id) {
                 }
                 sen[sentence_length] = word;
                 sentence_length++;
-                if (sentence_length >= MAX_SENTENCE_LENGH) {
+                if (sentence_length >= MAX_SENTENCE_LENGTH) {
                     break;
                 }
                 sentence_position = 0;
@@ -840,7 +842,7 @@ int ArgPos(char *str, int argc, char **argv) {
     return -1;
 }
 
-int main1(int argc, char **argv) {
+int main(int argc, char **argv) {
     int i;
     if (argc == 1) {
         printf("WORD VECTOR estimation toolkit v 0.1c\n\n");
@@ -917,16 +919,4 @@ int main1(int argc, char **argv) {
     TrainModel();
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 

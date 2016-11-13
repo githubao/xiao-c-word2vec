@@ -112,7 +112,7 @@ int VocabCompare(const void *a, const void *b) {
     return ((struct vocab_word *) b)->cn - ((struct vocab_word *) a)->cn;
 }
 
-int SortVocab() {
+void SortVocab() {
     int a;
     unsigned int hash;
     qsort(&vocab[1], vocab_size - 1, sizeof(struct vocab_word), VocabCompare);

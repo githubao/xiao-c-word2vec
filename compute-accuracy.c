@@ -6,9 +6,9 @@
 #include <math.h>
 #include <ctype.h>
 
-static const long long max_size = 2000; // string length
-static const long long N = 1; // number of closest words
-static const long long max_w = 50; // max_length of vocabulary entries
+#define max_size 2000 // string length
+#define N 1 // number of closest words
+#define max_w 50 // max_length of vocabulary entries
 
 int main4(int argc, char **argv) {
     FILE *f;
